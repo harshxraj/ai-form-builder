@@ -37,8 +37,6 @@ export async function generateForm(
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    // console.log(text);
-    // console.log(JSON.parse(text));
     const jsonString = text.replace(/^```json\s*([\s\S]*)\s*```$/g, "$1");
 
     const responseObject = JSON.parse(jsonString);
