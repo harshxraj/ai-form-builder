@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { generateForm } from "@/actions/generateForm";
 import { useFormState, useFormStatus } from "react-dom";
+import { v4 as uuidv4 } from "uuid";
+import { navigate } from "@/actions/navigateToForm";
 
 import { useSession, signIn } from "next-auth/react";
 
@@ -45,6 +47,7 @@ const FormGenerator = (props: Props) => {
   useEffect(() => {
     if (state?.message == "success") {
       setOpen(false);
+      navigate(state.data.formId);
     }
     console.log(state?.data);
   }, [state?.message]);
@@ -56,6 +59,8 @@ const FormGenerator = (props: Props) => {
       signIn();
     }
   };
+
+  // console.log("uuid", uuidv4());
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Button onClick={onFormCreate}>Create Form</Button>
@@ -65,7 +70,7 @@ const FormGenerator = (props: Props) => {
         </DialogHeader>
         <form action={formAction} className="grid gap-4 py-4">
           <Textarea
-            value={"who is elon musk"}
+            // value={"who is elon musk"}
             id="description"
             name="description"
             required

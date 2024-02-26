@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import { slateTheme, violetTheme } from "./actions/theme";
 
 const inter = Outfit({ subsets: ["latin"] });
 
