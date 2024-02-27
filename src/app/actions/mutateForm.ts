@@ -30,8 +30,8 @@ export async function saveForm(data: SaveFormData) {
     })
     .returning({ insertedId: forms.id, newFormCreated: forms.formID });
   const formId = newForm[0].insertedId;
-  console.log("formId created", formId);
-  console.log("formId created", newForm[0].newFormCreated);
+  // console.log("formId created", formId);
+  // console.log("formId created", newForm[0].newFormCreated);
 
   const newQuestions = data.questions.map((question) => {
     return {
@@ -61,4 +61,11 @@ export async function saveForm(data: SaveFormData) {
   });
 
   return newForm[0].newFormCreated;
+}
+
+export async function publishForm(formId: string) {
+  await db
+    .update(forms)
+    .set({ published: true })
+    .where(eq(forms.formID, formId));
 }
