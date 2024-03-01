@@ -69,3 +69,7 @@ export async function publishForm(formId: string) {
     .set({ published: true })
     .where(eq(forms.formID, formId));
 }
+
+export async function deleteForm(formId: string) {
+  await db.delete(forms).where(eq(forms.formID, formId));
+}

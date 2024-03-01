@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { generateForm } from "@/actions/generateForm";
 import { useFormState, useFormStatus } from "react-dom";
-import { v4 as uuidv4 } from "uuid";
 import { navigate } from "@/actions/navigateToForm";
 
 import { useSession, signIn } from "next-auth/react";
@@ -30,7 +29,6 @@ const initialState: {
 
 export function SubmitButton() {
   const { pending } = useFormStatus();
-  console.log("inside sumni");
   return (
     <Button type="submit" disabled={pending}>
       {pending ? "Generating..." : "Generate Form"}
@@ -42,7 +40,6 @@ const FormGenerator = (props: Props) => {
   const [state, formAction] = useFormState(generateForm, initialState);
   const [open, setOpen] = useState(false);
   const session = useSession();
-  //   console.log(session);
 
   useEffect(() => {
     if (state?.message == "success") {
@@ -60,7 +57,6 @@ const FormGenerator = (props: Props) => {
     }
   };
 
-  // console.log("uuid", uuidv4());
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Button onClick={onFormCreate}>Create Form</Button>
@@ -70,7 +66,6 @@ const FormGenerator = (props: Props) => {
         </DialogHeader>
         <form action={formAction} className="grid gap-4 py-4">
           <Textarea
-            // value={"who is elon musk"}
             id="description"
             name="description"
             required

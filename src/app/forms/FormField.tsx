@@ -28,8 +28,23 @@ const FormField = ({ element, value, onChange }: Props) => {
 
   const components = {
     Input: () => <Input type="text" onChange={onChange} />,
-    Switch: () => <Switch />,
-    Textarea: () => <Textarea />,
+
+    Switch: () => (
+      <Switch
+        onCheckedChange={(checked: boolean) => {
+          onChange(checked ? "true" : "false");
+        }}
+      />
+    ),
+
+    Textarea: () => (
+      <Textarea
+        onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+          onChange(e.target.value)
+        }
+      />
+    ),
+
     Select: () => (
       <Select onValueChange={onChange}>
         <SelectTrigger>

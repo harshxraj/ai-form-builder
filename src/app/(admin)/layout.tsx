@@ -49,7 +49,7 @@ export default function AdminLayout({
         </aside>
         <main className="flex w-full flex-1 flex-col overflow-hidden">
           <header className="flex items-center">
-            <h1 className="text-4xl m-5 p-4 font-semibold">Dashboard</h1>
+            <h1 className="text-4xl m-5 p-4 font-normal">Dashboard</h1>
             <SessionProvider>
               <FormGenerator />
             </SessionProvider>

@@ -13,12 +13,21 @@ import {
   FormLabel,
   FormControl,
 } from "@/components/ui/form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import FormField from "./FormField";
 import { publishForm } from "../actions/mutateForm";
 import { ThemeChange } from "@/components/ui/ThemeChange";
 import FormPublishSucces from "./FormPublishSucces";
+import { deleteForm } from "../actions/mutateForm";
+import { Trash2, RotateCw } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   form: Form;
@@ -38,18 +47,69 @@ const Form = (props: Props) => {
   const form = useForm();
   const { editMode } = props;
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [deletingForm, setDeletingForm] = useState(false);
   console.log("props", props);
+  const router = useRouter();
 
   const onSubmit = async (data: any) => {
-    console.log(props.form.formID);
+    console.log(data);
     if (editMode && props.form.formID !== null) {
       await publishForm(props.form.formID);
       setSuccessDialogOpen(true);
+    } else {
+      let answers = [];
+      for (const [questionId, value] of Object.entries(data)) {
+        const id = parseInt(questionId.replace("question_", ""));
+        let fieldOptionsId = null;
+        let textValue = null;
+
+        if (typeof value == "string" && value.includes("answerId_")) {
+          fieldOptionsId = parseInt(value.replace("answerId_", ""));
+        } else {
+          textValue = value as string;
+        }
+
+        answers.push({
+          questionId: id,
+          fieldOptionsId,
+          value: textValue,
+        });
+      }
+
+      const baseUrl =
+        process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+      const response = await fetch(`${baseUrl}/api/form/new`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ formId: props.form.id, answers }),
+      });
+      console.log(response);
+      if (response.status === 200) {
+        router.push(`/forms/${props.form.formID}/success`);
+      } else {
+        console.error("Error submitting form");
+        alert("Error submitting form. Please try again later");
+      }
     }
   };
 
   const handleDialogChange = (open: boolean) => {
     setSuccessDialogOpen(open);
+  };
+
+  const handleDeleteForm = async () => {
+    try {
+      setDeletingForm(true);
+      await deleteForm(props.form.formID || "");
+      router.push("/view-forms");
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setDeletingForm(false);
+    }
   };
   return (
     <div
@@ -59,7 +119,28 @@ const Form = (props: Props) => {
       <div className="hidden">
         <ThemeChange />
       </div>
-      <h1 className="text-3xl font-semibold py-3">{name}</h1>
+      <div className="flex items-center justify-center gap-2">
+        <h1 className="text-3xl font-semibold py-3 text-red">{name}</h1>
+
+        {editMode && !deletingForm && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Trash2
+                  className="hover:text-red-900 hover:cursor-pointer"
+                  onClick={handleDeleteForm}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Delete this form!</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        {editMode && deletingForm && <RotateCw className="animate-spin" />}
+      </div>
+
       <h3 className="text-md italic">{description}</h3>
       <FormComponent {...form}>
         <form

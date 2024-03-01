@@ -7,10 +7,10 @@ import {
   DialogTitle,
   DialogHeader,
   DialogDescription,
+  DialogClose,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { error } from "console";
-import { Link2Icon } from "@radix-ui/react-icons";
+import { useToast } from "@/components/ui/use-toast";
+import { Link2Icon, CopyIcon } from "@radix-ui/react-icons";
 
 type Props = {
   formId: string;
@@ -20,11 +20,16 @@ type Props = {
 
 const FormPublishSucces = (props: Props) => {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const { toast } = useToast();
 
   const copyToClipboard = () => {
     navigator.clipboard
       .writeText(`${baseUrl}/forms/${props.formId}`)
-      .then(() => alert("Copied to clipboard"))
+      .then(() => {
+        toast({
+          description: "Link Copied To Clipboard!",
+        });
+      })
       .catch((error) => alert("Failed to copy!"));
   };
 
@@ -41,16 +46,18 @@ const FormPublishSucces = (props: Props) => {
         <div className="flex flex-col">
           <p>Copy Link</p>
         </div>
-        <div className="border-2 border-gray-200 flex justify-between items-center mt-2 pl-2 rounded-md">
+        <div className="flex justify-between items-center mt-2 gap-2 rounded-md">
           <Link2Icon className="h-5 w-5 mr-2" />
           <input
-            className="w-full outline-none bg-transparent"
+            className="w-full outline-none bg-transparent border-2 px-2 rounded-md border-gray-200"
             type="text"
             placeholder="link"
             disabled
             value={`${baseUrl}/forms/${props.formId}`}
           />{" "}
-          <Button onClick={copyToClipboard}>Copy</Button>
+          <DialogClose asChild className="hover:cursor-pointer">
+            <CopyIcon onClick={copyToClipboard} className="h-6 w-6" />
+          </DialogClose>
         </div>
       </DialogContent>
     </Dialog>
