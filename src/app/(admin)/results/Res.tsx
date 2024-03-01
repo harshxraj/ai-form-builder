@@ -7,6 +7,12 @@ import {
   TableRow,
   TableCell,
 } from "@nextui-org/react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ResultsDisplay from "./ResultsDisplay";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
@@ -51,23 +57,19 @@ const Res = (props: Props) => {
   const [data, setData] = useState<TableProps | null>(null);
   const [cols, setCols] = useState<Question[]>([]);
   const [rows, setRows] = useState<FormSubmission[]>([]);
-  console.log("datassss", data);
-  console.log("cols", cols);
-  console.log("rows", rows);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getSubmissions(50); // Call your API function here
-        console.log("Res", res);
+        const res = await getSubmissions(51); // Call your API function here
         if (res) {
-          // Transform the fetched data into the format expected by TableProps
           const transformedData: TableProps = {
-            data: res.submissions, // Assuming res.submissions is an array of FormSubmission
-            columns: res.questions, // Assuming res.questions is an array of Question
+            data: res.submissions,
+            columns: res.questions,
           };
           setCols(res.questions);
           setRows(res.submissions);
-          setData(transformedData); // Update state with the transformed data
+          setData(transformedData);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -78,47 +80,46 @@ const Res = (props: Props) => {
   }, []);
 
   return (
-    <div>
+    <div className="overflow-x-auto">
       {data && (
         <Table aria-label="Example static collection table">
           <TableHeader columns={cols}>
             {(column) => (
-              <TableColumn key={column.text}>{column.text}</TableColumn>
+              <TableColumn key={column.text} className="font-semibold">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        style={{
+                          width: "150px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {column.text}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{column.text}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </TableColumn>
             )}
           </TableHeader>
           <TableBody>
-            <TableRow key="1">
-              <TableCell>Tony Reichert</TableCell>
-              <TableCell>CEO</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell>Zoey Lang</TableCell>
-              <TableCell>Technical Lead</TableCell>
-              <TableCell>Paused</TableCell>
-            </TableRow>
-            <TableRow key="2">
-              <TableCell>Zoey Lang</TableCell>
-              <TableCell>Technical Lead</TableCell>
-              <TableCell>Paused</TableCell>
-              <TableCell>Zoey Lang</TableCell>
-              <TableCell>Technical Lead</TableCell>
-              <TableCell>Paused</TableCell>
-            </TableRow>
-            <TableRow key="3">
-              <TableCell>Jane Fisher</TableCell>
-              <TableCell>Senior Developer</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell>Zoey Lang</TableCell>
-              <TableCell>Technical Lead</TableCell>
-              <TableCell>Paused</TableCell>
-            </TableRow>
-            <TableRow key="4">
-              <TableCell>William Howard</TableCell>
-              <TableCell>Community Manager</TableCell>
-              <TableCell>Vacation</TableCell>
-              <TableCell>Zoey Lang</TableCell>
-              <TableCell>Technical Lead</TableCell>
-              <TableCell>Paused</TableCell>
-            </TableRow>
+            {rows.map((row, index) => (
+              <TableRow key={index}>
+                {row.answers.map((answer, idx) => (
+                  <TableCell key={idx} className="font-light">
+                    {answer.value == null
+                      ? answer?.fieldOption?.text
+                      : answer.value}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
       )}

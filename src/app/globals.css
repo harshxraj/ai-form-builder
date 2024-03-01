@@ -46,3 +46,30 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #212121;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+::-webkit-scrollbar-horizontal {
+  height: 4px;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+  background-color: #212121;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track:horizontal {
+  background-color: #f1f1f1;
+}
