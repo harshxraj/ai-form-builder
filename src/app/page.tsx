@@ -18,7 +18,6 @@ export default async function Home() {
       <main className="flex min-h-screen flex-col items-center p-24 bg:dark">
         <h1 className="text-5xl">AI Form Builder</h1>
         <FormGenerator />
-        <FormList forms={fetchedForms} />
       </main>
     </SessionProvider>
   );

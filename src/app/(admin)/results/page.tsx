@@ -1,27 +1,53 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "@nextui-org/react";
 import { NextUIProvider } from "@nextui-org/react";
-import { InferSelectModel } from "drizzle-orm";
 import Res from "./Res";
-import { forms } from "@/db/schema";
 import { getUserForms } from "@/app/actions/getUserForms";
 import FormsPicker from "./FormPicker";
+import { InferSelectModel } from "drizzle-orm";
+import {
+  forms,
+  answers,
+  formSubmissions,
+  questions,
+  fieldOptions,
+} from "@/db/schema";
 
 type Props = {};
+type FieldOption = InferSelectModel<typeof fieldOptions>;
+
+type Answer = InferSelectModel<typeof answers> & {
+  fieldOption?: FieldOption | null;
+};
+
+type Question = InferSelectModel<typeof questions> & {
+  fieldOptions: FieldOption[];
+};
+
+type FormSubmission = InferSelectModel<typeof formSubmissions> & {
+  answers: Answer[];
+};
+
+export type Form =
+  | (InferSelectModel<typeof forms> & {
+      questions: Question[];
+      submissions: FormSubmission[];
+    })
+  | undefined;
+
+interface TableProps {
+  data: FormSubmission[];
+  columns: Question[];
+}
 
 const Page = (props: Props) => {
   const [selectOptions, setSelectOptions] = useState<
     { label: string; value: number }[]
   >([]);
+  const [data, setData] = useState<TableProps | null>(null);
+  const [cols, setCols] = useState<Question[] | null>(null);
+  const [rows, setRows] = useState<FormSubmission[] | null>(null);
 
   useEffect(() => {
     const fetchForms = async () => {
@@ -46,8 +72,15 @@ const Page = (props: Props) => {
 
   return (
     <NextUIProvider>
-      {selectOptions.length > 0 && <FormsPicker options={selectOptions} />}
-      <Res />
+      {selectOptions.length > 0 && (
+        <FormsPicker
+          options={selectOptions}
+          setData={setData}
+          setCols={setCols}
+          setRows={setRows}
+        />
+      )}
+      <Res data={data} cols={cols} rows={rows} />
     </NextUIProvider>
   );
 };

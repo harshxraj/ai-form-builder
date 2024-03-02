@@ -25,8 +25,8 @@ import {
   questions,
   fieldOptions,
 } from "@/db/schema";
+import { Columns } from "lucide-react";
 
-type Props = {};
 type FieldOption = InferSelectModel<typeof fieldOptions>;
 
 type Answer = InferSelectModel<typeof answers> & {
@@ -52,36 +52,15 @@ interface TableProps {
   data: FormSubmission[];
   columns: Question[];
 }
-
-const Res = (props: Props) => {
-  const [data, setData] = useState<TableProps | null>(null);
-  const [cols, setCols] = useState<Question[]>([]);
-  const [rows, setRows] = useState<FormSubmission[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getSubmissions(51); // Call your API function here
-        if (res) {
-          const transformedData: TableProps = {
-            data: res.submissions,
-            columns: res.questions,
-          };
-          setCols(res.questions);
-          setRows(res.submissions);
-          setData(transformedData);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
+interface ResProps {
+  data: TableProps | null;
+  cols: Question[] | null;
+  rows: FormSubmission[] | null;
+}
+const Res: React.FC<ResProps> = ({ data, cols, rows }) => {
   return (
     <div className="overflow-x-auto">
-      {data && (
+      {data && cols && (
         <Table aria-label="Example static collection table">
           <TableHeader columns={cols}>
             {(column) => (
@@ -109,13 +88,15 @@ const Res = (props: Props) => {
             )}
           </TableHeader>
           <TableBody>
-            {rows.map((row, index) => (
+            {(rows || []).map((row, index) => (
               <TableRow key={index}>
                 {row.answers.map((answer, idx) => (
                   <TableCell key={idx} className="font-light">
-                    {answer.value == null
-                      ? answer?.fieldOption?.text
-                      : answer.value}
+                    <div className="line-clamp-2">
+                      {answer.value == null
+                        ? answer?.fieldOption?.text
+                        : answer.value}
+                    </div>
                   </TableCell>
                 ))}
               </TableRow>
