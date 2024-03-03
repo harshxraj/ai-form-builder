@@ -26,7 +26,7 @@ import { addMoreQuestion, publishForm } from "../actions/mutateForm";
 import { ThemeChange } from "@/components/ui/ThemeChange";
 import FormPublishSucces from "./FormPublishSucces";
 import { deleteForm } from "../actions/mutateForm";
-import { Trash2, RotateCw, RefreshCcw } from "lucide-react";
+import { Trash2, RotateCw, RefreshCcw, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { db } from "@/db";
@@ -62,6 +62,7 @@ const Form = (props: Props) => {
   const [currentFormId, setCurrentFormId] = useState({ formID: "", id: 0 });
   const [addingNewFields, setAddingNewFields] = useState(false);
   const [toatalQuestions, setTotalQuestions] = useState(0);
+  const [submittingForm, setSubmittingForm] = useState(false);
 
   const { name, description, questions } = props.form;
   const form = useForm();
@@ -77,6 +78,7 @@ const Form = (props: Props) => {
       await publishForm(props.form.formID);
       setSuccessDialogOpen(true);
     } else {
+      setSubmittingForm(true);
       let answers = [];
       for (const [questionId, value] of Object.entries(data)) {
         const id = parseInt(questionId.replace("question_", ""));
@@ -109,9 +111,11 @@ const Form = (props: Props) => {
       console.log(response);
       if (response.status === 200) {
         router.push(`/forms/${props.form.formID}/success`);
+        // setSubmittingForm(false);
       } else {
         console.error("Error submitting form");
         alert("Error submitting form. Please try again later");
+        setSubmittingForm(false);
       }
     }
   };
@@ -141,6 +145,8 @@ const Form = (props: Props) => {
           .map((question) => question.text)
           .filter(Boolean) as AllQuestionModel;
         setAllQuestions(currentQuestions);
+        console.log("ALL QUE", response.questions.length);
+        setTotalQuestions(response.questions.length);
         setCurrentFormId({ formID: response?.formID || "", id: response.id });
         console.log("RESPONSE", response);
       } else {
@@ -267,7 +273,18 @@ const Form = (props: Props) => {
             </Button>
           )}
 
-          <Button type="submit">{editMode ? "Publish" : "Submit"}</Button>
+          <Button type="submit" disabled={submittingForm}>
+            {editMode ? (
+              "Publish"
+            ) : submittingForm ? (
+              <>
+                <Loader className="mr-3 animate-spin" />
+                Submitting
+              </>
+            ) : (
+              "Submit"
+            )}
+          </Button>
         </form>
       </FormComponent>
 
