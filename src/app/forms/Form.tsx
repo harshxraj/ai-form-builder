@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FormSelectModel,
   QuestionSelectModel,
@@ -22,12 +22,22 @@ import {
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import FormField from "./FormField";
-import { publishForm } from "../actions/mutateForm";
+import { addMoreQuestion, publishForm } from "../actions/mutateForm";
 import { ThemeChange } from "@/components/ui/ThemeChange";
 import FormPublishSucces from "./FormPublishSucces";
 import { deleteForm } from "../actions/mutateForm";
-import { Trash2, RotateCw } from "lucide-react";
+import { Trash2, RotateCw, RefreshCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { PlusIcon } from "@radix-ui/react-icons";
+import { db } from "@/db";
+import { InferInsertModel, eq } from "drizzle-orm";
+import { getCurrentForm } from "../actions/getUserForms";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { forms, questions as dbQuestions, fieldOptions } from "@/db/schema";
+const API_KEY = process.env.GEMINI_API_KEY || "";
+
+const genAI = new GoogleGenerativeAI(API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 type Props = {
   form: Form;
@@ -42,7 +52,17 @@ interface Form extends FormSelectModel {
   questions: Array<QuestionWithOptionsModel>;
 }
 
+interface AllQuestionModel extends Array<string> {}
+
+type Question = InferInsertModel<typeof dbQuestions>;
+
 const Form = (props: Props) => {
+  const [prompt, setPrompt] = useState<string>("");
+  const [allQuestions, setAllQuestions] = useState<any[]>([]);
+  const [currentFormId, setCurrentFormId] = useState({ formID: "", id: 0 });
+  const [addingNewFields, setAddingNewFields] = useState(false);
+  const [toatalQuestions, setTotalQuestions] = useState(0);
+
   const { name, description, questions } = props.form;
   const form = useForm();
   const { editMode } = props;
@@ -111,6 +131,59 @@ const Form = (props: Props) => {
       setDeletingForm(false);
     }
   };
+
+  const getCurrentFormInfo = async () => {
+    try {
+      const response = await getCurrentForm(props.form.formID || "");
+      if (response) {
+        setPrompt(response?.user_prompt || "");
+        const currentQuestions = response?.questions
+          .map((question) => question.text)
+          .filter(Boolean) as AllQuestionModel;
+        setAllQuestions(currentQuestions);
+        setCurrentFormId({ formID: response?.formID || "", id: response.id });
+        console.log("RESPONSE", response);
+      } else {
+        console.log("Form not found.");
+      }
+    } catch (err) {
+      console.log("Error occurred while fetching current form:", err);
+    }
+  };
+
+  console.log("CURENT FORM", currentFormId);
+
+  const handleAllMoreQuestions = async () => {
+    try {
+      setAddingNewFields(true);
+      const resp = await addMoreQuestion(
+        prompt,
+        currentFormId.id,
+        props.form.formID || "",
+        allQuestions.join(",")
+      );
+      if (resp !== undefined && resp !== null) {
+        setAllQuestions((prevQuestions) => [...prevQuestions, ...resp]);
+        setTotalQuestions(resp.length || 0);
+        router.refresh();
+        console.log(resp);
+        console.log("Response:", resp);
+      } else {
+        console.log("Response is undefined or null");
+      }
+      // setAllQuestions((prevQuestions) => [...prevQuestions, ...resp]);
+      // setTotalQuestions(resp?.length || 0);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setAddingNewFields(false);
+    }
+  };
+
+  useEffect(() => {
+    getCurrentFormInfo();
+  }, []);
+  console.log(allQuestions.length);
   return (
     <div
       className="text-center min-w-[520px] max-w-[620px] border px-8 py-4 rounded-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border-gray-100
@@ -173,9 +246,31 @@ const Form = (props: Props) => {
               );
             }
           )}
+          {editMode && toatalQuestions < 8 && (
+            <Button
+              onClick={handleAllMoreQuestions}
+              type="button"
+              variant="outline"
+              disabled={addingNewFields}
+            >
+              {!addingNewFields ? (
+                <>
+                  <PlusIcon className="mr-3 animate-ping" />
+                  Generate More Fields
+                </>
+              ) : (
+                <>
+                  <RefreshCcw className="mr-3 animate-spin" />
+                  Generating...
+                </>
+              )}
+            </Button>
+          )}
+
           <Button type="submit">{editMode ? "Publish" : "Submit"}</Button>
         </form>
       </FormComponent>
+
       <FormPublishSucces
         formId={props.form.formID || ""}
         open={successDialogOpen}

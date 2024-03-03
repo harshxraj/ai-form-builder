@@ -74,6 +74,7 @@ export const verificationTokens = pgTable(
 export const forms = pgTable("forms", {
   id: serial("id").primaryKey(),
   formID: text("form_id"),
+  user_prompt: text("user_prompt"),
   name: text("name"),
   description: text("description"),
   userId: text("user_id"),

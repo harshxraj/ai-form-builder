@@ -42,9 +42,11 @@ const FormGenerator = (props: Props) => {
   const session = useSession();
 
   useEffect(() => {
+    console.log("State", state);
     if (state?.message == "success") {
       setOpen(false);
       navigate(state.data.formId);
+      // navigate(state.data.formId, "Additional value i am passing");
     }
     console.log(state?.data);
   }, [state?.message]);

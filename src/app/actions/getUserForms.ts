@@ -16,3 +16,13 @@ export async function getUserForms() {
   });
   return userForms;
 }
+
+export async function getCurrentForm(formID: string) {
+  const formData = await db.query.forms.findFirst({
+    where: eq(forms.formID, formID),
+    with: {
+      questions: true,
+    },
+  });
+  return formData;
+}
