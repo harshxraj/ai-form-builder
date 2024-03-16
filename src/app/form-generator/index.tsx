@@ -75,7 +75,6 @@ const FormGenerator = (props: Props) => {
           />
           <DialogFooter>
             <SubmitButton />
-            <Button variant="outline">Create Manually</Button>
           </DialogFooter>
         </form>
       </DialogContent>

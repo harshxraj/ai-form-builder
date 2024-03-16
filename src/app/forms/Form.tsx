@@ -26,7 +26,7 @@ import { addMoreQuestion, publishForm } from "../actions/mutateForm";
 import { ThemeChange } from "@/components/ui/ThemeChange";
 import FormPublishSucces from "./FormPublishSucces";
 import { deleteForm } from "../actions/mutateForm";
-import { Trash2, RotateCw, RefreshCcw, Loader } from "lucide-react";
+import { Trash2, RotateCw, RefreshCcw, Loader, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PlusIcon } from "@radix-ui/react-icons";
 import { db } from "@/db";
@@ -192,7 +192,7 @@ const Form = (props: Props) => {
   console.log(allQuestions.length);
   return (
     <div
-      className="text-center min-w-[520px] max-w-[620px] border px-8 py-4 rounded-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border-gray-100
+      className="text-center min-w-[320px] md:min-w-[540px] max-w-[620px] border px-8 py-4 rounded-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border-gray-100
     "
     >
       <div className="hidden">
@@ -235,9 +235,16 @@ const Form = (props: Props) => {
                   key={`${question.text}_${index}`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base mt-3 mr-3">
-                        {index + 1}. {question.text}
-                      </FormLabel>
+                      <div className="flex justify-around items-center">
+                        <FormLabel className="text-base mt-3 mr-3 flex-1">
+                          {index + 1}. {question.text}
+                        </FormLabel>
+                        {/* <Pencil
+                          size={20}
+                          className="hover:cursor-pointer"
+                          onClick={() => console.log(question)}
+                        /> */}
+                      </div>
                       <FormControl>
                         <FormField
                           element={question}

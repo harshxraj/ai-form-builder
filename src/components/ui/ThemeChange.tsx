@@ -24,6 +24,7 @@ import {
   orangeTheme,
   neutralTheme,
 } from "@/actions/theme";
+import { Palette } from "lucide-react";
 
 export function ThemeChange() {
   const storedThemeString = localStorage.getItem("ai-form-builder-theme");
@@ -79,7 +80,17 @@ export function ThemeChange() {
   return (
     <Menubar className="hover:cursor-pointer" onClick={(e) => handleChange(e)}>
       <MenubarMenu>
-        <MenubarTrigger>Themes</MenubarTrigger>
+        {/* <MenubarTrigger>
+          Themes <Palette />
+        </MenubarTrigger> */}
+        <MenubarTrigger>
+          <span className="flex items-center">
+            <span className="mr-2">
+              <Palette />
+            </span>
+            <span className="hidden md:inline-block">Themes</span>
+          </span>
+        </MenubarTrigger>
         <MenubarContent>
           <MenubarRadioGroup onChange={handleChange}>
             <MenubarRadioItem value="slate">
