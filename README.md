@@ -26,7 +26,7 @@ This is an AI-powered form builder application built using Next.js, Next-auth, S
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/judygab/ai-form-builder-tutorial.git
+   git clone https://github.com/harshxraj/ai-form-builder.git
    ```
 
 2. **Install Dependencies:**
